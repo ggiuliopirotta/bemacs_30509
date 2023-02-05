@@ -83,11 +83,12 @@ class Tsp:
         return c
 
     def display(self):
+        x, y, route = self.x, self.y, self.route
+
         plt.pause(0.01)
         plt.figure(1)
         plt.clf()
 
-        x, y, route = self.x, self.y, self.route
         plt.plot(x[route], y[route], color='orange')
 
         e_last = [route[-1], route[0]]
