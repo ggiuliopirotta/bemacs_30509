@@ -10,14 +10,20 @@ class Tsp:
 
         self.n = n
         self.x, self.y = rnd.random(n), rnd.random(n)
-        self.dist = np.zeros((n, n))
-
-        for e1 in range(n):
-            for e2 in range(e1+1, n):
-                self.dist[e1, e2] = self.compute_dist(e1, e2)
-                self.dist[e2, e1] = self.dist[e1, e2]
 
         self.route = np.arange(n)
+        self.dist = config_dist()
+
+    def config_dist(self):
+        n = self.n
+
+        dist = np.zeros((n, n))
+        for e1 in range(n):
+            for e2 in range(e1+1, n):
+                dist[e1, e2] = np.sqrt((x[e1]-x[e2])**2 + (y[e1]-y[e2])**2)
+                dist[e2, e1] = dist[e1, e2]
+
+        return dist
 
     def init_config(self):
         n = self.n
@@ -54,12 +60,6 @@ class Tsp:
         e1, e2 = move
 
         self.route[e1+1:e2+1] = self.route[e2:e1:-1]
-    
-    def compute_dist(self, e1, e2):
-        x, y = self.x, self.y
-
-        dist = np.sqrt((x[e1]-x[e2])**2 + (y[e1]-y[e2])**2)
-        return dist
 
     def compute_delta_cost(self, move):
         n, dist, route = self.n, self.dist, self.route
