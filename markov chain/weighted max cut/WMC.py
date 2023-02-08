@@ -4,7 +4,10 @@ import numpy as np
 from numpy import random as rnd
 
 class Wmc:
-    def __init__(self, n, p):
+    def __init__(self, n, p, seed=None):
+        if seed is not None:
+            np.random.seed(seed)
+
         self.n = n
         self.x, self.y = rnd.random(n), rnd.random(n)
 
