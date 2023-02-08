@@ -90,10 +90,10 @@ class Sdk_Solver:
             else:
                 sdk += '\n'
 
-        print (sdk)
+        print(sdk)
     
-    def copy (self):
-        return deepcopy (self)
+    def copy(self):
+        return deepcopy(self)
 
 def check_error(array):
     if array.size == 0:
