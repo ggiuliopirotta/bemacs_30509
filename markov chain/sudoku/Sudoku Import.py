@@ -1,7 +1,7 @@
 from copy import deepcopy
 import numpy as np
 
-class Sdk_Creator:
+class Sdk_Import:
     def __init__(self, table, mask):
         self.n = len(table)
         self.sn = int(np.sqrt(self.n))
