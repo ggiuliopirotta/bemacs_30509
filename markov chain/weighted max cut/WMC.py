@@ -4,24 +4,24 @@ import numpy as np
 from numpy import random as rnd
 
 class Wmc:
-    def __init__(self, n, prob):
+    def __init__(self, n, p):
         self.n = n
         self.x, self.y = rnd.random(n), rnd.random(n)
 
         self.partition = [[], []]
-        self.dist = self.config_dist(prob)
+        self.graph = self.config_graph(p)
 
-    def config_dist(self, prob):
+    def config_graph(self, p):
         n, x, y = self.n, self.x, self.y
 
-        dist = np.zeros((n, n))
+        graph = np.zeros((n, n))
         for i in range(n):
             for j in range(i+1, n):
                 if rnd.random() < prob:
-                    dist[i, j] = np.sqrt((x[i]-x[j])**2 + (y[i]-y[j])**2)
-                    dist[j, i] = dist[i, j]
+                    graph[i, j] = np.sqrt((x[i]-x[j])**2 + (y[i]-y[j])**2)
+                    graph[j, i] = graph[i, j]
 
-        return dist
+        return graph
     
     def init_config(self):
         n = self.n
@@ -53,28 +53,28 @@ class Wmc:
         self.partition[p_choice], self.partition[1-p_choice] = p_from, p_to
     
     def compute_delta_cost(self, move):
-        partition, dist = self.partition, self.dist
+        partition, graph = self.partition, self.graph
         v, p_choice = move[1], move[2]
 
-        w_old = np.sum(dist[v, partition[1-p_choice]])
-        w_new = np.sum(dist[v, partition[p_choice]])
+        w_old = np.sum(graph[v, partition[1-p_choice]])
+        w_new = np.sum(graph[v, partition[p_choice]])
 
         w_delta = w_new-w_old
         return w_delta
 
     def compute_cost(self):
-        n, partition, dist = self.n, self.partition, self.dist
+        n, partition, graph = self.n, self.partition, self.graph
 
         w = 0.0
         for i in range(n):
             for j in range(i+1, n):
                 if (i in partition[0] and j in partition[1]) or (i in partition[1] and j in partition[0]):
-                    w += dist[i, j]
+                    w += graph[i, j]
 
         return w
 
     def display(self):
-        n, x, y, partition, dist = self.n, self.x, self.y, self.partition, self.dist
+        n, x, y, partition, graph = self.n, self.x, self.y, self.partition, self.graph
 
         plt.pause(0.01)
         plt.figure(1)
@@ -82,7 +82,7 @@ class Wmc:
 
         for i in range(n):
             for j in range(i+1, n):
-                if dist[i, j] != 0:
+                if graph[i, j] != 0:
                     xx = [x[i], x[j]]
                     yy = [y[i], y[j]]
 
