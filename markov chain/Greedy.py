@@ -14,7 +14,7 @@ def greedy(prob, iters, restarts, seed=None):
 
         for _ in range(iters):
             move = prob.propose_move()
-            c_delta = prob.c_delta(move)
+            c_delta = prob.compute_delta_cost(move)
 
             if c_delta <= 0:
                 prob.accept_move(move)
