@@ -1,65 +1,77 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def display_walks(grid_size, n_walkers, coord, coord_old):
-    plt.pause(0.1)
-    plt.figure(1)
-    plt.clf()
+class Random_Walks:
+    def __init__(self, n_walkers, size):
+        self.n_walkers = n_walkers
+        self.size = size
+        self.p_marg = np.zeros(size**2)
 
-    for i in range(grid_size):
-        plt.plot([0, grid_size-1], [i,i], color='grey', alpha=0.7)
-        plt.plot([i,i], [0, grid_size-1], color='grey', alpha=0.7)
+    def go_random(self, iters, show_prob=False):
+        n_walkers, size = self.n_walkers, self.size
 
-    x, y = coord[:,0], coord[:,1]
-    x_old, y_old = coord_old[:,0], coord_old[:,1]
+        moves = np.array([[1,0], [-1,0], [0,1], [0,-1]])
+        p = np.array([1/4, 1/4, 1/4, 1/4])
 
-    for j in range(n_walkers):
-        if abs(x_old[j]-x[j]) == grid_size-1 or abs(y_old[j]-y[j]) == grid_size-1:
-            continue
+        coord = np.zeros((n_walkers, 2))
+        coord[:,1] = size//2
+        coord[:,0] = size//2
+        self.p_marg[size//2+size*(size//2)] = 1
 
-        plt.plot([x_old[j], x[j]], [y_old[j], y[j]], color='orange', linewidth=3, alpha=0.7)
+        Q = np.zeros((size**2, size**2))
 
-    plt.plot(x, y, 'o', color='red', markersize=10, alpha=1/np.sqrt(n_walkers))
+        for i in range(size**2):
+            j = i//size
+            k = i %size
 
-def display_prob(grid_size, prob_marg):
-    plt.pause(0.1)
-    plt.figure(2)
-    plt.clf()
-    plt.pcolormesh(prob_marg.reshape((grid_size, grid_size)), cmap='Greys')
+            for m_i, p_i in zip(moves, p):
+                j_new = (j+m_i[1]) %size
+                k_new = (k+m_i[0]) %size
+                Q[size*j_new+k_new, i] += p_i
 
-def random_walks(grid_size, n_walkers, iters, plot_prob):
-    moves = np.array([[1,0], [-1,0], [0,1], [0,-1]])
-    n_moves = len(moves)
-    prob = np.array([1/4, 1/4, 1/4, 1/4])
+        for _ in range(iters):
+            coord_old = coord.copy()
+            coord += moves[np.random.choice(len(moves), n_walkers, p=p)]
+            coord %= size
+            self.p_marg = Q@self.p_marg
+            self.display_walks(coord, coord_old)
 
-    coord = np.zeros((n_walkers, 2), dtype=int)
-    coord[:,1].fill(grid_size//2)
-    coord[:,0].fill(grid_size//2)
+            if show_prob:
+                self.display_prob()
 
-    prob_marg = np.zeros(grid_size**2)
-    prob_marg[grid_size//2 + grid_size*(grid_size//2)] = 1
-    Q = np.zeros((grid_size**2, grid_size**2))
+        print(self.p_marg)
+        plt.show()
 
-    for i in range(grid_size**2):
-        j = i//grid_size
-        k = i%grid_size
+    def display_walks(self, coord, coord_old):
+        n_walkers, size = self.n_walkers, self.size
 
-        for m, p in zip(moves, prob):
-            jNew = (j+m[1])%grid_size
-            kNew = (k+m[0])%grid_size
-            Q[grid_size*jNew+kNew, i] += p
+        plt.pause(0.1)
+        plt.figure(1)
+        plt.clf()
 
-    for _ in range(iters):
-        coord_old = coord.copy()
-        coord += moves[np.random.choice(n_moves, n_walkers, p=prob)]
-        coord %= grid_size
-        prob_marg = Q@prob_marg
-        display_walks(grid_size, n_walkers, coord, coord_old)
+        for i in range(size):
+            plt.plot([0, size-1], [i,i], color='grey', alpha=0.7)
+            plt.plot([i,i], [0, size-1], color='grey', alpha=0.7)
 
-        if plot_prob:
-            display_prob(grid_size, prob_marg)
+        x, y = coord[:,0], coord[:,1]
+        x_old, y_old = coord_old[:,0], coord_old[:,1]
 
-    print(prob_marg)
-    plt.show()
+        for j in range(n_walkers):
+            if abs(x_old[j]-x[j]) == size-1 or abs(y_old[j]-y[j]) == size-1:
+                continue
 
-random_walks(grid_size=20, n_walkers=20, iters=100, plot_prob=False)
+            plt.plot([x_old[j], x[j]], [y_old[j], y[j]], color='orange', linewidth=3, alpha=0.7)
+
+        plt.plot(x, y, 'o', color='red', markersize=10, alpha=1/np.sqrt(n_walkers))
+
+    def display_prob(self):
+        p_marg, size = self.p_marg, self.size
+
+        plt.pause(0.1)
+        plt.figure(2)
+        plt.clf()
+
+        plt.pcolormesh(p_marg.reshape((size, size)), cmap='Greys')
+
+rnd_walks = Random_Walks(n_walkers=20, size=20)
+rnd_walks.go_random(iters=50, show_prob=False)
